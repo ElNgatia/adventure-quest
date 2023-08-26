@@ -1,4 +1,4 @@
-# bored_app
+# Adventure Quest
 
 A new Flutter project.
 
