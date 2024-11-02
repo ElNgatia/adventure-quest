@@ -17,19 +17,6 @@ class ActivitiesModel extends ChangeNotifier {
   }
 }
 
-const List<String> typeList = [
-  '',
-  'education',
-  'recreational',
-  'social',
-  'diy',
-  'charity',
-  'cooking',
-  'relaxation',
-  'music',
-  'busywork'
-];
-
 class BoredApi {
   Future<Map<String, dynamic>> getActivity({String type = '', String participants = ''}) async {
     const baseUrl = 'https://bored.api.lewagon.com/api/activity/';
