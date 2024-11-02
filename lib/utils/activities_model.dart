@@ -31,8 +31,8 @@ const List<String> typeList = [
 ];
 
 class BoredApi {
-  Future<Map<String, dynamic>> getActivity(
-      {String type = '', String participants = ''}) async {const baseUrl = 'https://www.boredapi.com/api/activity/';
+  Future<Map<String, dynamic>> getActivity({String type = '', String participants = ''}) async {
+    const baseUrl = 'https://bored.api.lewagon.com/api/activity/';
 
     final String url;
 
