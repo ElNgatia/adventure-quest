@@ -1,11 +1,9 @@
-
-
-import 'package:adventure_quest/activity/data/model/activity.dart';
 import 'package:adventure_quest/activity/repository/activity_repository.dart';
+import 'package:adventure_quest/database/app_database.dart';
 import 'package:adventure_quest/utils/activities_model.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -15,14 +13,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final BoredApi _boredApi = BoredApi();
-  ActivityModel? fetchedActivity;
-
-  @override
-  void initState() {
-    super.initState();
-    _getActivity();
-  }
+  ActivityData? fetchedActivity;
 
   Future<void> _getActivity() async {
     final newActivity = await activityRepository.fetchActivity();
@@ -32,10 +23,15 @@ class _HomeState extends State<Home> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _getActivity();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<ActivitiesModel>(
-        builder: (context, activitiesModel, child) {
+      body: Consumer<ActivitiesNotifier>(
+        builder: (context, activities, child) {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -102,18 +98,29 @@ class _HomeState extends State<Home> {
                       width: 10,
                     ),
                     ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (fetchedActivity != null) {
-                            activityRepository.saveActivity(fetchedActivity);
+                            try {
+                              await activityRepository.saveActivity(fetchedActivity);
 
-                            Fluttertoast.showToast(
-                              msg: 'Added to favorites',
-                              toastLength: Toast
-                                  .LENGTH_SHORT, // Duration for how long the toast should be displayed
-                              gravity: ToastGravity.BOTTOM, // Position of the toast on the screen
-                              backgroundColor: Colors.grey[600], // Background color of the toast
-                              textColor: Colors.white,
-                            );
+                              Fluttertoast.showToast(
+                                msg: 'Added to favorites',
+                                toastLength: Toast
+                                    .LENGTH_SHORT, // Duration for how long the toast should be displayed
+                                gravity: ToastGravity.BOTTOM, // Position of the toast on the screen
+                                backgroundColor: Colors.grey[600], // Background color of the toast
+                                textColor: Colors.white,
+                              );
+                            } on Exception {
+                              Fluttertoast.showToast(
+                                msg: 'Activity already exists in favorites',
+                                toastLength: Toast
+                                    .LENGTH_LONG, // Duration for how long the toast should be displayed
+                                gravity: ToastGravity.BOTTOM, // Position of the toast on the screen
+                                backgroundColor: Colors.red[600], // Background color of the toast
+                                textColor: Colors.white,
+                              );
+                            }
                           }
                         },
                         child: const Text('Add to Favorites')),

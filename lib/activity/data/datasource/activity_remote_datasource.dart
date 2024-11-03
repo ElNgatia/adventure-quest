@@ -1,19 +1,19 @@
 import 'dart:convert';
 
-import 'package:adventure_quest/activity/data/model/activity.dart';
+import 'package:adventure_quest/database/app_database.dart';
 import 'package:http/http.dart' as http;
 
 abstract class ActivityRemoteDataSource {
-  Future<ActivityModel> fetchActivity();
+  Future<ActivityData> fetchActivity();
 }
 
 class ActivityRemoteDataSourceImpl implements ActivityRemoteDataSource {
   @override
-  Future<ActivityModel> fetchActivity() async {
+  Future<ActivityData> fetchActivity() async {
     try {
       final response = await http.get(Uri.parse('https://bored.api.lewagon.com/api/activity/'));
 
-      return ActivityModel.fromJson(json.decode(response.body));
+      return ActivityData.fromJson(json.decode(response.body));
     } catch (e) {
       rethrow;
     }

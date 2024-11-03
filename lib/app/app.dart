@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../presentation/common_scaffold.dart';
-import '../utils/color_schemes.g.dart';
+import 'config/color_schemes.g.dart';
 
 class App extends StatelessWidget {
   const App({super.key});

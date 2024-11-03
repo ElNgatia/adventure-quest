@@ -12,7 +12,7 @@ class $ActivityTable extends Activity
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
+      'id', aliasedName, true,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
@@ -105,7 +105,7 @@ class $ActivityTable extends Activity
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ActivityData(
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
       activity: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}activity'])!,
       type: attachedDatabase.typeMapping
@@ -126,14 +126,14 @@ class $ActivityTable extends Activity
 }
 
 class ActivityData extends DataClass implements Insertable<ActivityData> {
-  final int id;
+  final int? id;
   final String activity;
   final String type;
   final int participants;
   final String link;
   final String key;
   const ActivityData(
-      {required this.id,
+      {this.id,
       required this.activity,
       required this.type,
       required this.participants,
@@ -142,7 +142,9 @@ class ActivityData extends DataClass implements Insertable<ActivityData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
     map['activity'] = Variable<String>(activity);
     map['type'] = Variable<String>(type);
     map['participants'] = Variable<int>(participants);
@@ -153,7 +155,7 @@ class ActivityData extends DataClass implements Insertable<ActivityData> {
 
   ActivityCompanion toCompanion(bool nullToAbsent) {
     return ActivityCompanion(
-      id: Value(id),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       activity: Value(activity),
       type: Value(type),
       participants: Value(participants),
@@ -166,7 +168,7 @@ class ActivityData extends DataClass implements Insertable<ActivityData> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ActivityData(
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<int?>(json['id']),
       activity: serializer.fromJson<String>(json['activity']),
       type: serializer.fromJson<String>(json['type']),
       participants: serializer.fromJson<int>(json['participants']),
@@ -178,7 +180,7 @@ class ActivityData extends DataClass implements Insertable<ActivityData> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<int?>(id),
       'activity': serializer.toJson<String>(activity),
       'type': serializer.toJson<String>(type),
       'participants': serializer.toJson<int>(participants),
@@ -188,14 +190,14 @@ class ActivityData extends DataClass implements Insertable<ActivityData> {
   }
 
   ActivityData copyWith(
-          {int? id,
+          {Value<int?> id = const Value.absent(),
           String? activity,
           String? type,
           int? participants,
           String? link,
           String? key}) =>
       ActivityData(
-        id: id ?? this.id,
+        id: id.present ? id.value : this.id,
         activity: activity ?? this.activity,
         type: type ?? this.type,
         participants: participants ?? this.participants,
@@ -243,7 +245,7 @@ class ActivityData extends DataClass implements Insertable<ActivityData> {
 }
 
 class ActivityCompanion extends UpdateCompanion<ActivityData> {
-  final Value<int> id;
+  final Value<int?> id;
   final Value<String> activity;
   final Value<String> type;
   final Value<int> participants;
@@ -288,7 +290,7 @@ class ActivityCompanion extends UpdateCompanion<ActivityData> {
   }
 
   ActivityCompanion copyWith(
-      {Value<int>? id,
+      {Value<int?>? id,
       Value<String>? activity,
       Value<String>? type,
       Value<int>? participants,
@@ -354,7 +356,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 }
 
 typedef $$ActivityTableCreateCompanionBuilder = ActivityCompanion Function({
-  Value<int> id,
+  Value<int?> id,
   required String activity,
   required String type,
   required int participants,
@@ -362,7 +364,7 @@ typedef $$ActivityTableCreateCompanionBuilder = ActivityCompanion Function({
   required String key,
 });
 typedef $$ActivityTableUpdateCompanionBuilder = ActivityCompanion Function({
-  Value<int> id,
+  Value<int?> id,
   Value<String> activity,
   Value<String> type,
   Value<int> participants,
@@ -478,7 +480,7 @@ class $$ActivityTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$ActivityTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
+            Value<int?> id = const Value.absent(),
             Value<String> activity = const Value.absent(),
             Value<String> type = const Value.absent(),
             Value<int> participants = const Value.absent(),
@@ -494,7 +496,7 @@ class $$ActivityTableTableManager extends RootTableManager<
             key: key,
           ),
           createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
+            Value<int?> id = const Value.absent(),
             required String activity,
             required String type,
             required int participants,
