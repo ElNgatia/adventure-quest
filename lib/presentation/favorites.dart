@@ -1,8 +1,7 @@
-import 'dart:convert';
-
+import 'package:adventure_quest/activity/data/datasource/activity_local_datasource.dart';
+import 'package:adventure_quest/database/app_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/activities_model.dart';
 
@@ -14,7 +13,7 @@ class Favorites extends StatefulWidget {
 }
 
 class _FavoritesState extends State<Favorites> {
-  List<Map<String, dynamic>> favorites = [];
+  List<ActivityData> favorites = [];
 
   @override
   void initState() {
@@ -22,32 +21,18 @@ class _FavoritesState extends State<Favorites> {
     _getFavorites();
   }
 
-Future<void> _getFavorites() async {
-  final prefs = await SharedPreferences.getInstance();
-  final favoritesStringList = prefs.getStringList('favorites') ?? [];
+  Future<void> _getFavorites() async {
+    final favoritesStringList = await activityLocalDataSource.getActivity();
 
-  setState(() {
-    favorites = favoritesStringList.map<Map<String, dynamic>>((favoritesString) {
-      return Map<String, dynamic>.from(json.decode(favoritesString));
-    }).toList();
-  });
-}
-
-  Future<void> _updateFavorites(
-      List<Map<String, dynamic>> updatedFavorite) async {
-    final prefs = await SharedPreferences.getInstance();
-    final updatedFavoriteJsonList = updatedFavorite.map((activity) {
-      return json.encode(activity);
-    }).toList();
-
-    await prefs.setStringList('favorites', updatedFavoriteJsonList);
+    setState(() {
+      favorites = favoritesStringList;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:
-          Consumer<ActivitiesModel>(builder: (builder, activitiesModel, child) {
+      body: Consumer<ActivitiesNotifier>(builder: (builder, activitiesModel, child) {
         final activities = activitiesModel.activities;
 
         return ListView.separated(
@@ -61,30 +46,20 @@ Future<void> _getFavorites() async {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 title: Text(
-                  activity['activity'] ?? '',
+                  activity.activity,
                 ),
                 subtitle: Text(
-                  activity['type'] ?? '',
+                  activity.type,
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // IconButton(
-                    //   onPressed: () {
-                    //
-                    //   },
-                    //   icon: Icon(Icons.done),
-                    // ),
                     IconButton(
                       icon: const Icon(Icons.cancel_outlined),
-                      onPressed: () {
-                        activitiesModel.removeActivity(activity['key']);
-
-                        setState(() {
-                          favorites.remove(activity);
-                        });
-                        _updateFavorites(favorites);
+                      onPressed: () async {
+                        activityLocalDataSource.deleteActivity(activity.id!);
+                        _getFavorites();
                       },
                     ),
                   ],

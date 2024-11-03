@@ -1,10 +1,9 @@
-import 'dart:convert';
-
+import 'package:adventure_quest/activity/repository/activity_repository.dart';
+import 'package:adventure_quest/database/app_database.dart';
 import 'package:adventure_quest/utils/activities_model.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,27 +13,25 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final BoredApi _boredApi = BoredApi();
-  Map<String, dynamic>? fetchedActivity;
-
-  @override
-  void initState() {
-    super.initState();
-    _getActivity();
-  }
+  ActivityData? fetchedActivity;
 
   Future<void> _getActivity() async {
-    final newActivity = await _boredApi.getActivity();
+    final newActivity = await activityRepository.fetchActivity();
     setState(() {
       fetchedActivity = newActivity;
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    _getActivity();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<ActivitiesModel>(
-        builder: (context, activitiesModel, child) {
+      body: Consumer<ActivitiesNotifier>(
+        builder: (context, activities, child) {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -58,28 +55,23 @@ class _HomeState extends State<Home> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Center(
-                                child:
-                                    Text(fetchedActivity!['activity'] ?? '')),
+                            Center(child: Text(fetchedActivity!.activity)),
                             const SizedBox(
                               height: 10,
                             ),
                             const Text(
                               'Type',
-                              style: TextStyle(
-                                  fontSize: 25, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                             ),
-                            Text(fetchedActivity!['type'] ?? ''),
+                            Text(fetchedActivity!.type),
                             const SizedBox(
                               height: 10,
                             ),
                             const Text(
                               'Participants',
-                              style: TextStyle(
-                                  fontSize: 25, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                             ),
-                            Text(fetchedActivity!['participants']?.toString() ??
-                                ''),
+                            Text(fetchedActivity!.participants.toString()),
                           ],
                         ),
                       if (fetchedActivity == null)
@@ -96,10 +88,7 @@ class _HomeState extends State<Home> {
                   children: [
                     ElevatedButton(
                       onPressed: () async {
-                        final newActivity = await _boredApi.getActivity();
-                        setState(() {
-                          fetchedActivity = newActivity;
-                        });
+                        _getActivity();
                       },
                       child: const Text(
                         'Get Activity',
@@ -109,31 +98,29 @@ class _HomeState extends State<Home> {
                       width: 10,
                     ),
                     ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (fetchedActivity != null) {
-                            // add to favorites
-                            activitiesModel
-                                .addActivity(Map.from(fetchedActivity!));
+                            try {
+                              await activityRepository.saveActivity(fetchedActivity);
 
-                            // save to local storage
-                            SharedPreferences.getInstance()
-                                .then((SharedPreferences prefs) {
-                              final favorites =
-                                  prefs.getStringList('favorites') ?? [];
-                              favorites.add(json.encode(fetchedActivity));
-                              prefs.setStringList('favorites', favorites);
-                            });
-
-                            Fluttertoast.showToast(
-                              msg: 'Added to favorites',
-                              toastLength: Toast
-                                  .LENGTH_SHORT, // Duration for how long the toast should be displayed
-                              gravity: ToastGravity
-                                  .BOTTOM, // Position of the toast on the screen
-                              backgroundColor: Colors
-                                  .grey[600], // Background color of the toast
-                              textColor: Colors.white,
-                            );
+                              Fluttertoast.showToast(
+                                msg: 'Added to favorites',
+                                toastLength: Toast
+                                    .LENGTH_SHORT, // Duration for how long the toast should be displayed
+                                gravity: ToastGravity.BOTTOM, // Position of the toast on the screen
+                                backgroundColor: Colors.grey[600], // Background color of the toast
+                                textColor: Colors.white,
+                              );
+                            } on Exception {
+                              Fluttertoast.showToast(
+                                msg: 'Activity already exists in favorites',
+                                toastLength: Toast
+                                    .LENGTH_LONG, // Duration for how long the toast should be displayed
+                                gravity: ToastGravity.BOTTOM, // Position of the toast on the screen
+                                backgroundColor: Colors.red[600], // Background color of the toast
+                                textColor: Colors.white,
+                              );
+                            }
                           }
                         },
                         child: const Text('Add to Favorites')),
