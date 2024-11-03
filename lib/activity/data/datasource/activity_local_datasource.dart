@@ -9,13 +9,13 @@ abstract class ActivityLocalDataSource {
 
 class ActivityLocalDataSourceImpl implements ActivityLocalDataSource {
   @override
-  Future<void> addActivity( activityCompanion) {
+  Future<void> addActivity(activityCompanion) {
     return appDatabase.into(appDatabase.activity).insert(activityCompanion);
   }
 
   @override
-  void deleteActivity(int id) {
-    return appDatabase.delete(appDatabase.activity).where((tbl) => tbl.id.equals(id));
+  Future<int> deleteActivity(int id) {
+    return (appDatabase.delete(appDatabase.activity)..where((tbl) => tbl.id.equals(id))).go();
   }
 
   @override

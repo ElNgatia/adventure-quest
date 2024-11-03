@@ -55,21 +55,11 @@ class _FavoritesState extends State<Favorites> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // IconButton(
-                    //   onPressed: () {
-                    //
-                    //   },
-                    //   icon: Icon(Icons.done),
-                    // ),
                     IconButton(
                       icon: const Icon(Icons.cancel_outlined),
-                      onPressed: () {
-                        activitiesModel.removeActivity(activity.key);
-
-                        setState(() {
-                          favorites.remove(activity);
-                        });
-                        // _updateFavorites(favorites);
+                      onPressed: () async {
+                        activityLocalDataSource.deleteActivity(activity.id!);
+                        _getFavorites();
                       },
                     ),
                   ],
