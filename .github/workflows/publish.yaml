@@ -1,0 +1,99 @@
+name: Publish to Play Store
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Setup NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r25e
+          add-to-path: true
+          local-cache: false
+
+      - name: Set App version
+        id: set_app_version
+        run: |
+          build_number=$(echo $(grep "^version:" pubspec.yaml | sed 's/.*+\(.*\)/\1/'| awk '{print $1 + 1}'))
+          version=$(echo "${{ github.event.release.tag_name }}" | cut -d 'v' -f2)
+          echo "APP_VERSION=$version" >>$GITHUB_OUTPUT
+          echo "BUILD_NUMBER=$build_number" >>$GITHUB_OUTPUT
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2.4.0
+        with:
+          channel: "stable"
+          flutter-version: 3.24.3
+
+      - name: Setup release key
+        run: |
+            bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/set_release_key.sh
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEY_JKS_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_JKS_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ALIAS_NAME }}
+
+      - name: Build Flutter App Bundle
+        run: flutter build appbundle  --release --build-name=${{ env.APP_VERSION }} --build-number=${{ env.BUILD_NUMBER }}
+        env:
+            ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+            APP_VERSION: ${{ env.APP_VERSION }}
+            BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+
+
+      # - name: Upload to Play Store
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJson: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+      #     packageName: com.adventurequest.app
+      #     releaseFile: app/build/outputs/apk/release/app-release.aab
+      #     track: production
+      #     status: completed
+      #     inAppUpdatePriority: 4
+
+
+
+  version-bump:
+    runs-on: ubuntu-latest
+    needs: publish
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          VERSION=$(grep versionName app/build.gradle | awk '{print $2}' | tr -d '"')
+          NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++;print}')
+          sed -i "s/versionName \"$VERSION\"/versionName \"$NEW_VERSION\"/" app/build.gradle
+          echo "New version: $NEW_VERSION"
+
+      - name: Commit version bump
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add app/build.gradle
+          git commit -m "Bump version to ${{ steps.bump_version.outputs.NEW_VERSION }}"
+          git push origin HEAD
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Bump version to ${{ steps.bump_version.outputs.NEW_VERSION }}
+          branch: version-bump
+          title: Bump version to ${{ steps.bump_version.outputs.NEW_VERSION }}
+          body: |
+            This PR bumps the version to ${{ steps.bump_version.outputs.NEW_VERSION }}.
