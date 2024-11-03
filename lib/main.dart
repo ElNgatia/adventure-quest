@@ -10,7 +10,7 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (BuildContext context) {
-        return ActivitiesModel();
+        return ActivitiesNotifier();
       },
       child: const App(),
     ),

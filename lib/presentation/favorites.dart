@@ -3,7 +3,6 @@ import 'package:adventure_quest/database/app_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 import '../utils/activities_model.dart';
 
 class Favorites extends StatefulWidget {
@@ -23,21 +22,17 @@ class _FavoritesState extends State<Favorites> {
   }
 
   Future<void> _getFavorites() async {
-    final favoritesStringList =await  activityLocalDataSource.getActivity();
+    final favoritesStringList = await activityLocalDataSource.getActivity();
 
     setState(() {
       favorites = favoritesStringList;
     });
   }
 
-  Future<void> _updateFavorites(List<Map<String, dynamic>> updatedFavorite) async {
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<ActivitiesModel>(builder: (builder, activitiesModel, child) {
+      body: Consumer<ActivitiesNotifier>(builder: (builder, activitiesModel, child) {
         final activities = activitiesModel.activities;
 
         return ListView.separated(
@@ -54,7 +49,7 @@ class _FavoritesState extends State<Favorites> {
                   activity.activity,
                 ),
                 subtitle: Text(
-                  activity.type ,
+                  activity.type,
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 trailing: Row(
