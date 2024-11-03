@@ -1,0 +1,115 @@
+name: Publish to Play Store
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      BUILD_NUMBER: ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
+      APP_VERSION: ${{ steps.set_app_version.outputs.APP_VERSION }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Setup NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r25e
+          add-to-path: true
+          local-cache: false
+
+      - name: Set App version
+        id: set_app_version
+        run: bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/set_app_version.sh
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2.4.0
+        with:
+          channel: "stable"
+          flutter-version: 3.24.3
+
+      - name: Setup release key
+        run: |
+            bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/set_release_key.sh
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEY_JKS_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_JKS_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ALIAS_NAME }}
+
+      - name: Build Flutter App Bundle
+        run: bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/build_flutter_app_bundle.sh
+        env:
+            ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+            APP_VERSION: ${{ env.APP_VERSION }}
+            BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+
+
+      - name: Upload to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.adventurequest.app
+          releaseFile: app/build/outputs/apk/release/app-release.aab
+          track: production
+          status: completed
+          inAppUpdatePriority: 4
+
+
+
+  version-bump:
+    runs-on: ubuntu-latest
+    needs: publish
+    env:
+      APP_VERSION: ${{ needs.publish.outputs.APP_VERSION }}
+      BUILD_NUMBER: ${{ needs.publish.outputs.BUILD_NUMBER }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Changelog
+        id: generate_changelog
+        run: bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/changelog.sh
+        env:
+          RELEASE_DATE: ${{ github.event.release.published_at }}
+          RELEASE_TAGNAME: ${{ github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+
+      - name: Update pubspec.yaml
+        run: bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/update_pubspec.sh
+        env:
+          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+          APP_VERSION: ${{ env.APP_VERSION }}
+  
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v5
+        with:
+            add-paths: |
+              pubspec.yaml
+              CHANGELOG.md
+            token: ${{ secrets.GITHUB_TOKEN }}
+            commit-message: "chore: Bump version to ${{ env.APP_VERSION }} and generate changelog"
+            body: "Automated change to bump version to ${{ env.APP_VERSION }}"
+            committer: GitHub <noreply@github.com>
+            author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+            signoff: false
+            branch: release-${{ env.APP_VERSION }}
+            delete-branch: true
+            title: "chore: Bump version to ${{ env.APP_VERSION }}"
+            draft: false
+  
+      - name: Force merge pull request
+        env:
+            GH_TOKEN: ${{ secrets.PAT }}
+            PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+        run: bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/merge_pull_request.sh
