@@ -49,8 +49,8 @@ jobs:
         run: bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/build_flutter_app_bundle.sh
         env:
             ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-            APP_VERSION: ${{ env.APP_VERSION }}
-            BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+            APP_VERSION: ${{ steps.set_app_version.outputs.APP_VERSION }}
+            BUILD_NUMBER: ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
 
 
       - name: Upload to Play Store
