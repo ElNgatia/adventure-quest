@@ -1,4 +1,4 @@
-package com.adventurequest.adventure_quest
+package com.adventurequest.app
 
 import io.flutter.embedding.android.FlutterActivity
 
