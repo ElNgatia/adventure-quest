@@ -3,6 +3,8 @@ name: Publish to Play Store
 on:
   release:
     types: [published]
+    branches:
+      - master
 
 jobs:
   publish:
