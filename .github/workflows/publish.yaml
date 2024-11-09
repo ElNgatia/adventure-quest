@@ -71,6 +71,7 @@ jobs:
           track: production
           status: completed
           inAppUpdatePriority: 4
+          changesNotSentForReview: true
 
 
 
