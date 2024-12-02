@@ -45,12 +45,12 @@ class _CommonScaffoldState extends State<CommonScaffold> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
-            // backgroundColor: Colors.black,
+            backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Favorites',
-            // backgroundColor: Colors.black,
+            backgroundColor: Colors.black,
           ),
         ],
       ),
