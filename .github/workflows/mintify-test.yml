@@ -1,0 +1,20 @@
+name: Code review
+
+on:
+  pull_request:
+
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Review code
+        uses: mohswell/mintify@v1.0.4
+        with:
+          BASE_APP_URL: ${{secrets.BASE_APP_URL}}
+          API_KEY: ${{secrets.API_TOKEN}}
+          TOKEN: ${{secrets.TOKEN}}
