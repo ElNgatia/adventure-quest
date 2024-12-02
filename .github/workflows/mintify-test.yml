@@ -8,7 +8,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
-    steps:com
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
