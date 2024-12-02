@@ -18,3 +18,4 @@ jobs:
           BASE_APP_URL: ${{secrets.BASE_APP_URL}}
           API_KEY: ${{secrets.API_TOKEN}}
           TOKEN: ${{secrets.TOKEN}}
+          
