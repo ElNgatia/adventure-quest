@@ -37,7 +37,7 @@ class _HomeState extends State<Home> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // ignore: sized_box_for_whitespace
+                
                 Container(
                   width: double.infinity,
                   height: 300,
