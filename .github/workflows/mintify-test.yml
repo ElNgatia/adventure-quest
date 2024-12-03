@@ -2,8 +2,11 @@ name: Code review
 
 on:
   pull_request:
-
-
+    branches:
+      '*'
+  pull_request_review:
+    types: [submitted]
+  
 jobs:
   publish:
     runs-on: ubuntu-latest
