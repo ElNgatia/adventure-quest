@@ -103,6 +103,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
+            base: master
             add-paths: |
               pubspec.yaml
               CHANGELOG.md
