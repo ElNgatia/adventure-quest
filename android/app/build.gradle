@@ -55,6 +55,12 @@ android {
         versionName flutterVersionName
     }
 
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging false
+        }
+    }
+
     signingConfigs {
     release {
         keyAlias keystoreProperties['keyAlias']
