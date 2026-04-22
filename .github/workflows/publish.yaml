@@ -68,10 +68,9 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.adventurequest.app
           releaseFiles: ${{ steps.set_app_version.outputs.APP_VERSION }}/app-release.aab
-          track: production
+          tracks: production
           status: completed
           inAppUpdatePriority: 4
-          changesNotSentForReview: true
 
 
 
