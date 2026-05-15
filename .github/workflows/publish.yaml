@@ -69,6 +69,8 @@ jobs:
         with:
           platform: android
           flutter-version: 3.41.2
+          app-version: ${{ steps.set_app_version.outputs.APP_VERSION }}
+          build-number: ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
 
 
       - name: Upload to Play Store
