@@ -63,11 +63,12 @@ jobs:
       #       APP_VERSION: ${{ steps.set_app_version.outputs.APP_VERSION }}
       #       BUILD_NUMBER: ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
 
-      - name: 🚀 Shorebird Release
+      - name: Shorebird Release
         id: shorebird-release
         uses: shorebirdtech/shorebird-release@v1
         with:
           platform: android
+          flutter-version: 3.41.2
 
 
       - name: Upload to Play Store
