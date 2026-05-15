@@ -9,6 +9,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
     outputs:
       BUILD_NUMBER: ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
       APP_VERSION: ${{ steps.set_app_version.outputs.APP_VERSION }}
@@ -39,11 +41,11 @@ jobs:
           java-version: '21'
 
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2.16.0
+      - name: Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
         with:
-          channel: "stable"
-          flutter-version: 3.41.2
+          cache: true
+
 
       - name: Setup release key
         run: |
@@ -54,12 +56,18 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_JKS_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ALIAS_NAME }}
 
-      - name: Build Flutter App Bundle
-        run: bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/build_flutter_app_bundle.sh
-        env:
-            ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-            APP_VERSION: ${{ steps.set_app_version.outputs.APP_VERSION }}
-            BUILD_NUMBER: ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
+      # - name: Build Flutter App Bundle
+      #   run: bash ${GITHUB_WORKSPACE}/.github/workflows/scripts/build_flutter_app_bundle.sh
+      #   env:
+      #       ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      #       APP_VERSION: ${{ steps.set_app_version.outputs.APP_VERSION }}
+      #       BUILD_NUMBER: ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
+
+      - name: 🚀 Shorebird Release
+        id: shorebird-release
+        uses: shorebirdtech/shorebird-release@v1
+        with:
+          platform: android
 
 
       - name: Upload to Play Store
@@ -67,7 +75,7 @@ jobs:
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.adventurequest.app
-          releaseFiles: ${{ steps.set_app_version.outputs.APP_VERSION }}/app-release.aab
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
           tracks: production
           status: completed
           inAppUpdatePriority: 4
