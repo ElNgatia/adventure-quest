@@ -70,7 +70,6 @@ jobs:
           platform: android
           flutter-version: 3.41.2
           args: >-
-            --release
             --build-number ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
             --build-name ${{ steps.set_app_version.outputs.APP_VERSION }}
 
