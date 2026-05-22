@@ -48,7 +48,7 @@ class _CommonScaffoldState extends State<CommonScaffold> {
             backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
+            icon: Icon(Icons.star),
             label: 'Favorites',
             backgroundColor: Colors.black,
           ),
