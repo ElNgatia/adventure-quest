@@ -81,7 +81,7 @@ jobs:
         if: ${{ contains(github.event.release.tag_name, '-hotfix.') }}
         with:
           platform: android
-          release-version: ${{ steps.set_app_version.outputs.APP_VERSION }}
+          release-version: ${{ steps.set_app_version.outputs.RELEASE_VERSION }}
 
 
 
