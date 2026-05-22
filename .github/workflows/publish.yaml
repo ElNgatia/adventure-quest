@@ -6,7 +6,6 @@ on:
 
 jobs:
   publish:
-    if: "!contains(github.event.release.tag_name, '-hotfix.')"
     runs-on: ubuntu-latest
     env:
       SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
