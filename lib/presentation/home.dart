@@ -91,7 +91,7 @@ class _HomeState extends State<Home> {
                         _getActivity();
                       },
                       child: const Text(
-                        'Get Activity',
+                        'Get an Activity',
                       ),
                     ),
                     const SizedBox(
