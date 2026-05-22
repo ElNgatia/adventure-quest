@@ -6,6 +6,7 @@ function set_app_version() {
   version=$(echo "$TAG_NAME" | cut -d 'v' -f2)
   echo "APP_VERSION=$version" >>$GITHUB_OUTPUT
   echo "BUILD_NUMBER=$build_number" >>$GITHUB_OUTPUT
+  echo "RELEASE_VERSION=$version+$build_number" >>$GITHUB_OUTPUT
 }
 
 set_app_version

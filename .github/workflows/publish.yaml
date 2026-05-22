@@ -14,6 +14,7 @@ jobs:
     outputs:
       BUILD_NUMBER: ${{ steps.set_app_version.outputs.BUILD_NUMBER }}
       APP_VERSION: ${{ steps.set_app_version.outputs.APP_VERSION }}
+      RELEASE_VERSION: ${{ steps.set_app_version.outputs.RELEASE_VERSION }}
 
     steps:
       - name: Checkout repository
@@ -80,7 +81,7 @@ jobs:
         if: ${{ contains(github.event.release.tag_name, '-hotfix.') }}
         with:
           platform: android
-          release-version: ${{ env.BASE_VERSION }}
+          release-version: ${{ steps.set_app_version.outputs.APP_VERSION }}
 
 
 
