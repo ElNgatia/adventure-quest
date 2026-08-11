@@ -11,7 +11,7 @@ class ActivityRemoteDataSourceImpl implements ActivityRemoteDataSource {
   @override
   Future<ActivityData> fetchActivity() async {
     try {
-      final response = await http.get(Uri.parse('https://bored.api.lewagon.com/api/activity/'));
+      final response = await http.get(Uri.parse('https://bored-api.appbrewery.com/random'));
 
       return ActivityData.fromJson(json.decode(response.body));
     } catch (e) {

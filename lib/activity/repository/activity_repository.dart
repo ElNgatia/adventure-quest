@@ -6,7 +6,7 @@ abstract class ActivityRepository {
   // fetch, get, delete, save, basic crud with api calls too
   Future<ActivityData> fetchActivity();
   Future<List<ActivityData>> getActivity();
-  Future<void> saveActivity(activity);
+  Future<void> saveActivity(ActivityData activity);
   void deleteActivity(int id);
 }
 

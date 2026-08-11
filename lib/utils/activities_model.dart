@@ -9,9 +9,9 @@ class ActivitiesNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeActivity(activity) {
-    _activities.remove(activity);
-    notifyListeners();
-  }
+  // void removeActivity(activity) {
+  //   _activities.remove(activity);
+  //   notifyListeners();
+  // }
 }
 
