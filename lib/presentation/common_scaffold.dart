@@ -18,7 +18,7 @@ class _CommonScaffoldState extends State<CommonScaffold> {
     Favorites(),
   ];
 
-  void _onItemTap(index) {
+  void _onItemTap(int index) {
     setState(() {
       _currentIndex = index;
     });

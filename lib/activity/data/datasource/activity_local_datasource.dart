@@ -2,7 +2,7 @@ import 'package:adventure_quest/database/app_database.dart';
 
 abstract class ActivityLocalDataSource {
   // get activities, add activity, delete activity,
-  Future<void> addActivity(activityCompanion);
+  Future<void> addActivity(ActivityData activityCompanion);
   void deleteActivity(int id);
   Future<List<ActivityData>> getActivity();
 }
