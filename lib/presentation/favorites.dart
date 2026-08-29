@@ -18,7 +18,6 @@ class _FavoritesState extends State<Favorites> {
     _getFavorites();
   }
 
-  // method to get faviorites form datasource
   Future<void> _getFavorites() async {
     final favoritesStringList = await activityLocalDataSource.getActivity();
 
@@ -27,7 +26,6 @@ class _FavoritesState extends State<Favorites> {
     });
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
